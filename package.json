@@ -10,10 +10,14 @@
   "author": "Eman Wagih",
   "license": "ISC",
   "dependencies": {
+    "@sequelize/postgres": "^7.0.0-alpha.44",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "nodemon": "^3.1.9",
     "pg": "^8.13.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.5",
     "validator": "^13.12.0"
   }
 }

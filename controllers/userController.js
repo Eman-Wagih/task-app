@@ -1,24 +1,5 @@
-const pool = require('../db');
 const validator = require('validator')
-
-
-const createTable = async () => {
-  const query = `
-    CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(20) NOT NULL,
-      email VARCHAR(30) UNIQUE NOT NULL,
-      job_title VARCHAR(20) NOT NULL,
-      CHECK (length(name) >= 3)
-    );`;
-
-  try {
-    await pool.query(query);
-    console.log("Table created successfully!");
-  } catch (err) {
-    console.error("Error creating table:", err.message);
-  } 
-};
+const { sequelize, User, Task } = require('../sequelize');
 
 exports.validateEmail = (req, res, next) => {
     const isEmail = validator.isEmail(req.body.email);
@@ -34,13 +15,13 @@ exports.validateEmail = (req, res, next) => {
 exports.getAllUsers = async (req, res) => {
     let users;
     try {
-        users = await pool.query('SELECT * FROM users');
+        users = await User.findAll();
         res.status(200).send({
             status: 'sucess', 
-            users: users.rows
+            users
         })
     } catch (err) {
-        if (users.rows.length == 0) err.message = 'no users were found'
+        if (users.length == 0) err.message = 'no users were found'
         res.status(404).send({
             err: err.message
         })
@@ -48,15 +29,16 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.addUser = async (req, res) => {
-    await createTable();
-    const {name, email, jobTitle} = req.body
-    try { 
-        let user = await pool.query(`INSERT INTO users (name, email, job_title) VALUES ($1, $2, $3) RETURNING *`, [name, email, jobTitle]); 
-        res.status(200).send({
-            status: 'sucess', 
-            user: user.rows[0]
-        })
+    const {name, email, job_title} = req.body
+    try {
+        const user = await User.create({name, email, job_title})
+        await user.save(); 
+        console.log(user, 'user'); 
 
+        res.status(200).send({
+            status: 'success', 
+            user
+        })
     } catch (err) {
         res.status(400).send({
             status: 'faild',
@@ -66,34 +48,18 @@ exports.addUser = async (req, res) => {
 };
 
 exports.getUser = async (req, res) => {
+    const id = req.params.id
     try {
-        const result  = await pool.query('SELECT * FROM users u left join tasks t on u.id = t.employeeId WHERE u.id = $1', [req.params.id]);
-        
-        if (result.rows.length === 0) {
+        const user = await User.findOne({where: {id}});
+        if (!user) {
             return res.status(404).json({
               status: "fail",
               message: `No user found`,
             });
           }
-          const user = result.rows[0];  
-          const tasks = result.rows
-            .filter(row => row.id)  
-            .map(row => ({
-              task_id: row.id,
-              description: row.description,
-              start_date: row.start_date,
-              end_date: row.end_date,
-            }));
-            console.log(tasks)
           res.status(200).json({
             status: "success",
-            user: {
-              user_id: user.user_id,
-              name: user.name,
-              email: user.email,
-              job_title: user.job_title,
-              tasks: tasks,
-            },
+            user
     });
     } catch(err) {
         console.log(err)
@@ -105,46 +71,56 @@ exports.getUser = async (req, res) => {
 }
 
 exports.editUser = async (req, res) => {
-    const { name, email, jobTitle } = req.body;  
-    const userId = req.params.id;  
+    // const { name, email, jobTitle } = req.body;  
+    const id = req.params.id;  
     try {
-        const result = await pool.query (
-            `UPDATE users
-             SET name = COALESCE($1, name), email = COALESCE($2, email), job_title = COALESCE($3, job_title)
-             WHERE id = $4
-             RETURNING *`, 
-            [name, email, jobTitle, userId]
-        );
-        if (result.rows.length > 0) {
-            res.status(200).send({
-                status: 'success',
-                user: result.rows[0]  
-            });
-        } else {
+        const user = await User.findOne({where: {id}})
+        if (!user) {
             res.status(404).send({
                 status: 'fail',
                 message: 'User not found'
             });
         }
+        await user.update(req.body)
+        res.status(200).send({
+            status: 'success',
+            user
+        });
     } catch (err) {
         console.log(err);
         res.status(500).send({
             status: 'failed',
             message: err
         });
-    }
-}
+}}
 
 exports.deleteUser = async (req, res) => {
-    const userId = req.params.id; 
+    const id = req.params.id; 
     try {
-        await pool.query(`DELETE FROM users WHERE id = $1 RETURNING *`, [userId]);
+        await User.destroy({where: {id}})
         res.status(204).send({
             status: 'sucess'
         })
     } catch (err) {
         res.status(404).send({
             status: 'faild', 
+            err: err.message
+        })
+    }
+
+}
+
+exports.getUserTasks = async (req, res) => {
+    try { 
+    const userId = Number(req.params.userId); 
+    const tasks = await Task.findAll({ where: { employeeId:  userId} });
+    res.status(200).send({
+        status: 'sucess', 
+        tasks
+    })
+    } catch(err) {
+        res.status(500).send({
+            status: 'faild',
             err: err.message
         })
     }
