@@ -1,0 +1,96 @@
+/* @import "tailwindcss"; */
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* .aside {
+  position: relative;
+  right: -512px;
+  top: -31px;
+  max-width: 150px;
+  min-height: 50vh;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid white;
+  border-radius: 20%;
+} */
+
+.task {
+  display: flex;
+
+}
+body {
+  background-color: black;
+  color: white;
+}
+
+/* .grid {
+  display: grid;
+  grid-template-rows: 2fr, 1fr;
+} */
+
+select {
+  height: 35px;
+  margin: 20px 0px;
+}
+
+.task {
+  margin: 20px;
+    padding: 20px;
+    line-height: 0;
+    background-color: rgb(150 173 166);
+    color: black;
+    font-family: cursive;
+    box-shadow: 12px 10px 0px 1px #888;
+    border-radius: 5px;
+}
+
+.controllers {
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+div[role="dialog"], div[role="alertdialog"] {
+  background-color: black; 
+  max-width: 70vw;
+}
