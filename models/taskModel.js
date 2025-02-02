@@ -21,9 +21,13 @@ module.exports = (sequelize) => {
         type: DataTypes.DATE,
         allowNull: false
     },
-    employeeId: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'User', 
+        key: 'id'   
+      }
     }
   }, {
     sequelize,
@@ -34,6 +38,11 @@ module.exports = (sequelize) => {
         beforeValidate(task) {
             if (task.end_date < task.start_date) {
                 throw new Error('End date can’t be before start date');
+            }
+            const taskHours = (new Date(task.end_date) - new Date(task.start_date)) / (1000 * 60 * 60);
+        
+            if (taskHours > 8) {
+              throw new Error('Task duration cannot exceed 8 hours.');
             }
         }
     }

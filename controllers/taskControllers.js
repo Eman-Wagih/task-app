@@ -20,10 +20,11 @@ exports.getAllTasks = async (req, res) => {
 
 
 exports.addTask = async (req, res) => {
-    const {employeeId} = req.body || req.params.employeeId
+    const {userId} = req.body || req.params.employeeId
+    console.log(userId)
     const {description, start_date, end_date} = req.body
     try { 
-        let task = await Task.create({description, start_date, end_date, employeeId})
+        let task = await Task.create({description, start_date, end_date, userId})
         await task.save(); 
         res.status(200).send({
             status: 'sucess', 

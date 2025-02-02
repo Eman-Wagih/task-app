@@ -1,6 +1,10 @@
 const validator = require('validator')
 const { sequelize, User, Task } = require('../sequelize');
 
+
+User.hasMany(Task, { foreignKey: 'userId', as: 'tasks' });
+Task.belongsTo(User);
+
 exports.validateEmail = (req, res, next) => {
     const isEmail = validator.isEmail(req.body.email);
     console.log(isEmail)
@@ -50,7 +54,13 @@ exports.addUser = async (req, res) => {
 exports.getUser = async (req, res) => {
     const id = req.params.id
     try {
-        const user = await User.findOne({where: {id}});
+        const user = await User.findOne({
+            where: { id },
+            include: [{
+              model: Task,
+              as: 'tasks'
+            }]
+          });
         if (!user) {
             return res.status(404).json({
               status: "fail",
