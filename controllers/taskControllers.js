@@ -69,8 +69,8 @@ exports.updateTask = async (req, res) => {
     try {
        const task = await Task.findOne({where: {id}})
         await task.update(req.body)
-        res.status(404).send({
-            status: 'fail',
+        res.status(200).send({
+            status: 'sucess',
             task
         });
     } catch (err) {
