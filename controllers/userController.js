@@ -19,7 +19,10 @@ exports.validateEmail = (req, res, next) => {
 exports.getAllUsers = async (req, res) => {
     let users;
     try {
-        users = await User.findAll();
+        users = await User.findAll({include: [{
+            model: Task,
+            as: 'tasks'
+          }]});
         res.status(200).send({
             status: 'sucess', 
             users
