@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import { FaRegEdit } from 'react-icons/fa';
+import { useState } from 'react';
 import { MdOutlineDeleteForever } from 'react-icons/md';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,24 +13,25 @@ import {
 } from "@/components/ui/alert-dialog"
 import AddEditTask from './AddEditTask';
 import './App.css'
+import { task } from './interfaces/task';
 
 
-const deleteTask = async (id) => {
-    const response = await fetch(`http://127.0.0.1:5000/api/v1/tasks/${id}`, {
+const deleteTask = async (id: number) => {
+     await fetch(`http://127.0.0.1:5000/api/v1/tasks/${id}`, {
       method: 'DELETE',
     })
 };
 
-const TaskControl = ({task}) => {
+const TaskControl = ({task}: { task: task }) => {
     const [action, setAction] = useState<'edit' | 'delete' | null>(null);
     if (action === 'delete') {
-      deleteTask(task.id);
+      deleteTask(task?.id?? 0);
     }; 
   return (
     <>
     <div className="flex justify-between ">
       <div>
-        <AddEditTask actionType={'Edit'} id={task.id} task={task}/>
+        <AddEditTask actionType={'Edit'} id={task?.id?? 0} task={task}/>
       </div>
       <div>
       <AlertDialog>
@@ -48,7 +47,7 @@ const TaskControl = ({task}) => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setAction(null)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => deleteTask(task.id)}>Delete</AlertDialogAction>
+          <AlertDialogAction onClick={() => deleteTask(task?.id?? 0)}>Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

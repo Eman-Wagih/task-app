@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { SetStateAction, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,10 +14,11 @@ import { Button } from "@/components/ui/button";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaRegEdit } from 'react-icons/fa';
 import './App.css'
+import { task } from './interfaces/task';
 
-let errMsg = null;
+let errMsg: SetStateAction<null>;
 
-const addTask = async (data) => {
+const addTask = async (data: task) => {
     const response = await fetch(`http://127.0.0.1:5000/api/v1/tasks`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -35,7 +36,7 @@ const addTask = async (data) => {
 }
 
 
-const updateTask = async (id, data) => {
+const updateTask = async (id:string, data: { description: string; start_date: string; end_date: string; }) => {
     const response = await fetch(`http://127.0.0.1:5000/api/v1/tasks/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -51,8 +52,12 @@ const updateTask = async (id, data) => {
     }
     return response.json();
 }
-
-const AddEditTask = ({ actionType, id, task }) => {
+interface AddEditTaskProps {
+  actionType: 'Add' | 'Edit';
+  id: number;
+  task?: task; 
+}
+const AddEditTask: React.FC<AddEditTaskProps> = ({ actionType, id, task }) => {
   const [open, setOpen] = useState(false);
   const [err, setErr] = useState(null)
   const [formData, setFormData] = useState({
@@ -61,17 +66,18 @@ const AddEditTask = ({ actionType, id, task }) => {
     end_date: task?.end_date || '',
   });
 
- async function handleSubmit(e) {
+ async function handleSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
     if (actionType === 'Add') {
-        const data = Object.assign(formData, {userId: id})
+      const data = { ...formData, userId: id };
         await addTask(data).then(()=> setOpen(false)).catch(()=> setErr(errMsg))
     } else {
-      await updateTask(id, formData).then(()=> setOpen(false)).catch(()=> setErr(errMsg))
+      await updateTask(id.toString(), formData).then(()=> setOpen(false)).catch(()=> setErr(errMsg))
     }
 }
 
-  function handleChange(e) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function handleChange(e: any) {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
@@ -126,7 +132,6 @@ const AddEditTask = ({ actionType, id, task }) => {
               name="start_date"
               className="col-span-2"
               value={formData.start_date}
-              defaultValue={task.start_date || null}
               onChange={handleChange}
               required
             />

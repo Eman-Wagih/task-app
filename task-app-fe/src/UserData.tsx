@@ -1,4 +1,3 @@
-import React from 'react'
 import { user } from './interfaces/user'
 import Task from './Task'
 import { task } from './interfaces/task';
@@ -42,7 +41,7 @@ const UserData = ({user}: {user: user}) => {
             </li>
             <li> Remaining: <strong>{getHoursAndMinutes(allocatedTime)} </strong></li>
           </ul>
-            {allocatedTime > 0 &&  <AddEditTask actionType={'Add'} id={user.id} task={''}/>}
+            {allocatedTime > 0 &&  <AddEditTask actionType={'Add'} id={user.id}/>}
             {allocatedTime <= 0 && <p> {user.name} has reached their daily limit </p>}
          </div>
         <Task userId={user.id}/>

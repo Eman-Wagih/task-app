@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { SetStateAction, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,8 +11,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-let errMsg = null;
-const addUser = async (data) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let errMsg: SetStateAction<null> = null;
+const addUser = async (data: { name: string; email: string; job_title: string }) => {
     const response = await fetch(`http://127.0.0.1:5000/api/v1/users`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -39,13 +40,13 @@ const AddUser = () => {
         job_title:  '',
       });
     
-    async function handleSubmit(e) {
+    async function handleSubmit(e: { preventDefault: () => void }) {
         e.preventDefault();
         console.log(formData)
-          await addUser(formData).then(()=> setOpen(false)).catch(()=> setError(err)); 
+          await addUser(formData).then(()=> setOpen(false)).catch(()=> setError(errMsg)); 
     }
 
-    function handleChange(e) {
+    function handleChange(e: { target: { name: string; value: string } }) {
         const { name, value } = e.target;
         setFormData((prevState) => ({
           ...prevState,
