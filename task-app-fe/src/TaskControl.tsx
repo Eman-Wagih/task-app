@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { MdOutlineDeleteForever } from 'react-icons/md';
 import {
   AlertDialog,
@@ -16,17 +15,9 @@ import './App.css'
 import { task } from './interfaces/task';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-
-// const deleteTask = async (id: number) => {
-//      await fetch(`http://127.0.0.1:5000/api/v1/tasks/${id}`, {
-//       method: 'DELETE',
-//     })
-// };
-
 const TaskControl = ({task}: { task: task }) => {
   const queryClient = useQueryClient();
 
-  // Mutation for deleting a task
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       await fetch(`http://127.0.0.1:5000/api/v1/tasks/${id}`, {
@@ -34,15 +25,10 @@ const TaskControl = ({task}: { task: task }) => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["task", task.id]); // Refetch tasks
+      queryClient.invalidateQueries(); 
     },
   });
 
-    // const [action, setAction] = useState<'edit' | 'delete' | null>(null);
-    // if (action === 'delete') {
-    //   deleteTask(task?.id?? 0);
-    //   onDelete(task?.id); 
-    // }; 
   return (
     <>
     <div className="flex justify-between ">

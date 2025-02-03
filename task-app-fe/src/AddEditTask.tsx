@@ -43,7 +43,7 @@ const AddEditTask: React.FC<AddEditTaskProps> = ({ actionType, id, task }) => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["tasks", id]); 
+      queryClient.invalidateQueries(); 
     }
   });
 
@@ -57,18 +57,18 @@ const AddEditTask: React.FC<AddEditTaskProps> = ({ actionType, id, task }) => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["tasks", id]); 
+      queryClient.invalidateQueries(); 
       setOpen(false);
     }
   });
   
   
-  function isMoreThanHours(start, end) {
+  function isMoreThanHours(start: string | Date, end: string | Date): boolean {
     const startDate = new Date(start);
     const endDate = new Date(end);
-      const differenceInMillis = Math.abs(startDate - endDate);
-      const differenceInHours = differenceInMillis / (1000 * 60 * 60);
-      return differenceInHours > 8;
+    const differenceInMillis = Math.abs(startDate.getTime() - endDate.getTime());
+    const differenceInHours = differenceInMillis / (1000 * 60 * 60); 
+    return differenceInHours > 8;
   }
   
 

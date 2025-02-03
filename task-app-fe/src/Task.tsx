@@ -3,7 +3,7 @@ import TaskControl from './TaskControl';
 import './App.css'
 
 
-const Task = ({tasks}) => {
+const Task = ({ tasks }: { tasks: task[] } )=> {
     function converDate (date:string): Date  {
       const dateConverted = new Date(date); 
       return dateConverted
