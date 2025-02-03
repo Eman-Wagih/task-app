@@ -43,7 +43,7 @@ const UserData = ({user}: {user: user}) => {
             <li> Remaining: <strong>{getHoursAndMinutes(allocatedTime)} </strong></li>
           </ul>
             {allocatedTime > 0 &&  <AddEditTask actionType={'Add'} id={user.id} task={''}/>}
-            {allocatedTime == 0 && <p> {user.name} has reached their daily limit </p>}
+            {allocatedTime <= 0 && <p> {user.name} has reached their daily limit </p>}
          </div>
         <Task userId={user.id}/>
     </>

@@ -15,6 +15,8 @@ import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaRegEdit } from 'react-icons/fa';
 import './App.css'
 
+let errMsg = null;
+
 const addTask = async (data) => {
     const response = await fetch(`http://127.0.0.1:5000/api/v1/tasks`, {
       method: 'POST',
@@ -24,7 +26,10 @@ const addTask = async (data) => {
       },
     });
     if (!response.ok) {
-      throw new Error('Failed to edit task');
+      const res = await response.json();
+      errMsg = res.messgae
+      console.log(errMsg)
+      throw new Error('Failed to add task');
     }
     return response.json();
 }
@@ -39,28 +44,32 @@ const updateTask = async (id, data) => {
       },
     });
     if (!response.ok) {
+      const res = await response.json();
+      errMsg = res.messgae
+      console.log(errMsg)
       throw new Error('Failed to edit task');
     }
     return response.json();
 }
 
 const AddEditTask = ({ actionType, id, task }) => {
+  const [open, setOpen] = useState(false);
+  const [err, setErr] = useState(null)
   const [formData, setFormData] = useState({
     description: task?.description ||  '',
     start_date: task?.start_date || '',
     end_date: task?.end_date || '',
   });
 
-  function handleSubmit(e) {
+ async function handleSubmit(e) {
     e.preventDefault();
     if (actionType === 'Add') {
         const data = Object.assign(formData, {userId: id})
-        addTask(data)
+        await addTask(data).then(()=> setOpen(false)).catch(()=> setErr(errMsg))
     } else {
-        updateTask(id, formData)
+      await updateTask(id, formData).then(()=> setOpen(false)).catch(()=> setErr(errMsg))
     }
-    
-  }
+}
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -70,10 +79,11 @@ const AddEditTask = ({ actionType, id, task }) => {
     }));
   }
 
+
   return (
     <div className='bg-red-500'> 
-    <Dialog>
-      <DialogTrigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild onClick={()=> setOpen(true)}>
       <span className="flex items-center gap-2">
         {actionType === "Add" && (
         <p className="flex items-center gap-1">
@@ -85,53 +95,60 @@ const AddEditTask = ({ actionType, id, task }) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{actionType} Task</DialogTitle>
+          <DialogTitle> {!err ? `${actionType} Task` : <p> {err}</p>} </DialogTitle>
           <DialogDescription>
             Make changes to the task here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">
+            <Label htmlFor="description" className="text-center inline-block mb-2">
               Task Description
             </Label>
             <Input
               id="description"
               name="description"
-              className="col-span-3"
+              className="col-span-2"
               value={formData.description}
               onChange={handleChange}
               required
             />
+           <br></br>
+           <br></br>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="start_date" className="text-right">
+            <Label htmlFor="start_date" className="text-center inline-block mb-2">
               Start Date
             </Label>
             <input
               type="datetime-local"
               id="start_date"
               name="start_date"
-              className="col-span-3"
+              className="col-span-2"
               value={formData.start_date}
               defaultValue={task.start_date || null}
               onChange={handleChange}
               required
             />
+           <br></br>
+           <br></br>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="end_date" className="text-right">
+            <Label htmlFor="end_date" className="text-center inline-block mb-2">
               End Date
             </Label>
             <input
               type="datetime-local"
               id="end_date"
               name="end_date"
-              className="col-span-3"
+              className="col-span-2"
               value={formData.end_date}
               onChange={handleChange}
               required
             />
+             <br></br>
+             <br></br>
+             <br></br>
           </div>
           <DialogFooter>
             <Button type="submit">{actionType} Task</Button>

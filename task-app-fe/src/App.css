@@ -94,3 +94,12 @@ div[role="dialog"], div[role="alertdialog"] {
   background-color: black; 
   max-width: 70vw;
 }
+
+div[role="dialog"], div[role="alertdialog"] form {
+  display: flex;
+  flex-direction: column;
+}
+
+input[type="datetime-local"] {
+  background-color: black;
+}

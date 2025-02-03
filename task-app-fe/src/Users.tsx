@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { user } from './interfaces/user';
 import UserData from './UserData';
 import './App.css'
+import AddUser from './AddUser';
 const fetchUsers = async () => {
     const response = await fetch("http://127.0.0.1:5000/api/v1/users");
     if (!response.ok) {
@@ -27,7 +28,8 @@ const Users = () => {
     return (
         <>
             <aside className='flex flex-col aside'>
-            <label htmlFor="users" className="inline-block m-8 ">Choose a user:</label>
+            <label htmlFor="users" className="inline-block m-8 ">Choose a user or: </label>
+            <AddUser/>
             <select className="rounded-full border my-12"  name="users" id="users" onChange={(e)=> setChosenUser(e.target.value)}>
                 {data.users.map((user: user) => {
                     return (
