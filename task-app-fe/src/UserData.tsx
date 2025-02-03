@@ -2,10 +2,14 @@ import { user } from './interfaces/user'
 import Task from './Task'
 import { task } from './interfaces/task';
 import AddEditTask from './AddEditTask';
+import { useParams } from 'react-router-dom';
 
 
 
 const UserData = ({user}: {user: user}) => {
+  const {id} = useParams()
+  
+  console.log(id)
   console.log(user)
   const calculateDuration = (start_date: string, end_date: string) => {
     const start = new Date(start_date);
@@ -44,7 +48,7 @@ const UserData = ({user}: {user: user}) => {
             {allocatedTime > 0 &&  <AddEditTask actionType={'Add'} id={user.id}/>}
             {allocatedTime <= 0 && <p> {user.name} has reached their daily limit </p>}
          </div>
-        <Task userId={user.id}/>
+        <Task tasks={user.tasks}/>
     </>
   )
 }

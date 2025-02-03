@@ -1,49 +1,46 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { task } from './interfaces/task';
 import TaskControl from './TaskControl';
 import './App.css'
 
-const fetchTasks = async (id:number):  Promise<task[]> => {
-    const response = await fetch(`http://127.0.0.1:5000/api/v1/users/${id}`);
-    if (!response.ok) {
-      throw new Error("something went wrong");
-    }
-    const data = await response.json();
-    return data.user.tasks
-};
+// const fetchTasks = async (id:number):  Promise<task[]> => {
+//     const response = await fetch(`http://127.0.0.1:5000/api/v1/users/${id}`);
+//     if (!response.ok) {
+//       throw new Error("something went wrong");
+//     }
+//     const data = await response.json();
+//     return data.user.tasks
+// };
 
-function useTasks(userId: number) {
-    console.log(userId, 'employee id')
-    return useQuery<task[], Error>({
-      queryKey: ['tasks', userId],
-      queryFn: () => fetchTasks(userId),
-      enabled: !!userId, 
-    });
-  }
-const Task = ({userId}: {userId: number}) => {
-    const { 
-        data: tasks,
-        error, 
-        isLoading 
-      } = useTasks(userId);
-      const queryClient = useQueryClient();
-      queryClient.setQueryData(['tasks'], (tasks)); 
-
-      if (isLoading) {
-        return <div>Loading tasks...</div>;
-      }
+// function useTasks(userId: number) {
+//     console.log(userId, 'employee id')
+//     console.log(fetchTasks)
+//     return useQuery<task[], Error>({
+//       queryKey: ['tasks', userId],
+//       queryFn: () => fetchTasks(userId),
+//       enabled: !!userId, 
+//     });
+  // }
+const Task = ({tasks}) => {
+    // const { 
+    //     data: tasks,
+    //     error, 
+    //     isLoading 
+    //   } = useTasks(userId);
+    //   if (isLoading) {
+    //     return <div>Loading tasks...</div>;
+    //   }
     
-      if (error) {
-        return <div>Error loading tasks: {error.message}</div>;
-      }
-    console.log(tasks)
+    //   if (error) {
+    //     return <div>Error loading tasks: {error.message}</div>;
+    //   }
+    // console.log(tasks)
 
     function converDate (date:string): Date  {
       const dateConverted = new Date(date); 
       return dateConverted
     }
   if (tasks) {
-    
   return (
     <div className='allTasks flex items-center '>
     {tasks.map((tasky: task) => (

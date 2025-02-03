@@ -1,4 +1,4 @@
-import { SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -15,43 +15,8 @@ import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaRegEdit } from 'react-icons/fa';
 import './App.css'
 import { task } from './interfaces/task';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-let errMsg: SetStateAction<null>;
-
-const addTask = async (data: task) => {
-    const response = await fetch(`http://127.0.0.1:5000/api/v1/tasks`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      const res = await response.json();
-      errMsg = res.messgae
-      console.log(errMsg)
-      throw new Error('Failed to add task');
-    }
-    return response.json();
-}
-
-
-const updateTask = async (id:string, data: { description: string; start_date: string; end_date: string; }) => {
-    const response = await fetch(`http://127.0.0.1:5000/api/v1/tasks/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      const res = await response.json();
-      errMsg = res.messgae
-      console.log(errMsg)
-      throw new Error('Failed to edit task');
-    }
-    return response.json();
-}
 interface AddEditTaskProps {
   actionType: 'Add' | 'Edit';
   id: number;
@@ -59,20 +24,87 @@ interface AddEditTaskProps {
 }
 const AddEditTask: React.FC<AddEditTaskProps> = ({ actionType, id, task }) => {
   const [open, setOpen] = useState(false);
-  const [err, setErr] = useState(null)
+  const [err, setErr] = useState('')
   const [formData, setFormData] = useState({
     description: task?.description ||  '',
     start_date: task?.start_date || '',
     end_date: task?.end_date || '',
   });
 
+  const queryClient = useQueryClient();
+
+  const addTaskMutation = useMutation({
+    mutationFn: async (data: task) => {
+      const response = await fetch(`http://127.0.0.1:5000/api/v1/tasks`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log(response.json())
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks", id]); 
+      setOpen(false);
+    },
+    onError: (error: Error) => {
+      setOpen(true);
+    },
+  });
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async (data: task) => {
+      const response = await fetch(`http://127.0.0.1:5000/api/v1/tasks/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks", id]); 
+      setOpen(false);
+    },
+    onError: (error: Error) => {
+      setOpen(true);
+    },
+  });
+  
+  
+  function isMoreThanHours(start, end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+      const differenceInMillis = Math.abs(startDate - endDate);
+      const differenceInHours = differenceInMillis / (1000 * 60 * 60);
+      return differenceInHours > 8;
+  }
+  
+
  async function handleSubmit(e: { preventDefault: () => void; }) {
-    e.preventDefault();
+    e.preventDefault()
+    const { description, start_date, end_date } = formData;
+    if (start_date > end_date) {
+      setErr('Start Date cant be before end Date');
+      setOpen(true);
+      return;
+
+    } else if (isMoreThanHours(start_date, end_date)) {
+      console.log(isMoreThanHours(start_date, end_date))
+      setErr('task cannot exceed 8 hours');
+      setOpen(true);
+      return;
+    }
     if (actionType === 'Add') {
-      const data = { ...formData, userId: id };
-        await addTask(data).then(()=> setOpen(false)).catch(()=> setErr(errMsg))
+      const newTask = { ...formData, userId: id }; 
+      addTaskMutation.mutate(newTask); 
     } else {
-      await updateTask(id.toString(), formData).then(()=> setOpen(false)).catch(()=> setErr(errMsg))
+      updateTaskMutation.mutate({
+        id: task?.id ?? 0, 
+        description,
+        start_date,
+        end_date,
+        userId: task?.userId ?? 0
+      });
     }
 }
 
@@ -101,7 +133,7 @@ const AddEditTask: React.FC<AddEditTaskProps> = ({ actionType, id, task }) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle> {!err ? `${actionType} Task` : <p> {err}</p>} </DialogTitle>
+          <DialogTitle> {err ? err: `${actionType} Task`}  </DialogTitle>
           <DialogDescription>
             Make changes to the task here. Click save when you're done.
           </DialogDescription>

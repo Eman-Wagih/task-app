@@ -4,6 +4,7 @@ import { user } from './interfaces/user';
 import UserData from './UserData';
 import './App.css'
 import AddUser from './AddUser';
+import Task from './Task';
 const fetchUsers = async () => {
     const response = await fetch("http://127.0.0.1:5000/api/v1/users");
     if (!response.ok) {
@@ -24,7 +25,7 @@ const Users = () => {
     console.log(data)
    
     const selectedUser = data?.users?.find((user: user) => user.id.toString() === chosenUser);
-
+    console.log(selectedUser)
     return (
         <>
             <aside className='flex flex-col aside'>
@@ -39,6 +40,7 @@ const Users = () => {
             </select>
             </aside>
             <UserData user={selectedUser || data.users[0]} />
+            {/* <Task userId={selectedUser.id}/> */}
         </>
     )
     }
