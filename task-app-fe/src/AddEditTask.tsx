@@ -40,16 +40,11 @@ const AddEditTask: React.FC<AddEditTaskProps> = ({ actionType, id, task }) => {
         body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },
       });
-      console.log(response.json())
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks", id]); 
-      setOpen(false);
-    },
-    onError: (error: Error) => {
-      setOpen(true);
-    },
+    }
   });
 
   const updateTaskMutation = useMutation({
@@ -64,10 +59,7 @@ const AddEditTask: React.FC<AddEditTaskProps> = ({ actionType, id, task }) => {
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks", id]); 
       setOpen(false);
-    },
-    onError: (error: Error) => {
-      setOpen(true);
-    },
+    }
   });
   
   
@@ -85,18 +77,17 @@ const AddEditTask: React.FC<AddEditTaskProps> = ({ actionType, id, task }) => {
     const { description, start_date, end_date } = formData;
     if (start_date > end_date) {
       setErr('Start Date cant be before end Date');
-      setOpen(true);
       return;
 
     } else if (isMoreThanHours(start_date, end_date)) {
       console.log(isMoreThanHours(start_date, end_date))
       setErr('task cannot exceed 8 hours');
-      setOpen(true);
       return;
     }
     if (actionType === 'Add') {
       const newTask = { ...formData, userId: id }; 
       addTaskMutation.mutate(newTask); 
+      setOpen(false);
     } else {
       updateTaskMutation.mutate({
         id: task?.id ?? 0, 
@@ -105,6 +96,8 @@ const AddEditTask: React.FC<AddEditTaskProps> = ({ actionType, id, task }) => {
         end_date,
         userId: task?.userId ?? 0
       });
+      setOpen(false);
+
     }
 }
 
